@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luma Tempo</title>
+
+  <style>
+    :root {
+      --text: #ffffff;
+      --secondary: #dbe5ff;
+
+      --primary: #5f6fff;
+      --accent: #ff69b4;
+      --accent-light: #ff9ad1;
+
+      --glow-blue: rgba(95, 111, 255, 0.35);
+      --glow-pink: rgba(255, 105, 180, 0.28);
+
+      --card: rgba(255, 255, 255, 0.12);
+      --border: rgba(255, 255, 255, 0.18);
+
+      --shadow:
+        0 20px 60px rgba(0, 0, 0, 0.18),
+        0 0 80px rgba(95, 111, 255, 0.08);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      overflow: hidden;
+      color: var(--text);
+      position: relative;
+
+      background:
+        radial-gradient(circle at 15% 20%, rgba(95, 111, 255, 0.32) 0%, transparent 30%),
+        radial-gradient(circle at 85% 15%, rgba(255, 105, 180, 0.22) 0%, transparent 28%),
+        radial-gradient(circle at 80% 85%, rgba(122, 167, 255, 0.20) 0%, transparent 35%),
+        linear-gradient(160deg, #1a2344 0%, #1e2750 45%, #18213f 100%);
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(90px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::before {
+      width: 280px;
+      height: 280px;
+      background: var(--glow-blue);
+      top: -80px;
+      left: -60px;
+    }
+
+    body::after {
+      width: 260px;
+      height: 260px;
+      background: var(--glow-pink);
+      bottom: -60px;
+      right: -40px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card {
+      background: var(--card);
+      backdrop-filter: blur(30px) saturate(180%);
+      -webkit-backdrop-filter: blur(30px) saturate(180%);
+      border: 1px solid var(--border);
+      border-radius: 32px;
+      padding: 38px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 28px;
+    }
+
+    .language-switch {
+      display: flex;
+      gap: 4px;
+      padding: 4px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .lang-btn {
+      border: none;
+      background: transparent;
+      color: var(--secondary);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .lang-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .lang-btn.active {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      box-shadow:
+        0 8px 30px rgba(95, 111, 255, 0.25),
+        0 0 25px rgba(255, 105, 180, 0.18);
+    }
+
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: var(--secondary);
+      font-size: 1rem;
+      line-height: 1.5;
+      margin-bottom: 32px;
+    }
+
+    .mode-selector {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 26px;
+    }
+
+    .mode-btn {
+      flex: 1;
+      padding: 12px 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--secondary);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .mode-btn:hover {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.09);
+    }
+
+    .mode-btn.active {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      border-color: transparent;
+      box-shadow:
+        0 10px 30px rgba(95, 111, 255, 0.18),
+        0 0 20px rgba(255, 105, 180, 0.12);
+    }
+
+    .mode {
+      display: inline-block;
+      padding: 10px 18px;
+      margin-bottom: 30px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--secondary);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      font-weight: 600;
+    }
+
+    .timer {
+      font-size: 5.5rem;
+      font-weight: 700;
+      letter-spacing: -0.06em;
+      margin-bottom: 28px;
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 0 30px rgba(95, 111, 255, 0.18);
+    }
+
+    .sessions {
+      color: var(--secondary);
+      margin-bottom: 20px;
+      font-size: 1rem;
+    }
+
+    .quote {
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 32px;
+      padding: 20px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      color: var(--secondary);
+      font-style: italic;
+      line-height: 1.6;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      border-radius: 14px;
+      padding: 14px 22px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .start {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      box-shadow:
+        0 12px 30px rgba(95, 111, 255, 0.22),
+        0 0 20px rgba(255, 105, 180, 0.15);
+    }
+
+    .pause,
+    .reset {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .buttons button:hover {
+      transform: translateY(-2px);
+    }
+
+    .progress {
+      width: 100%;
+      height: 10px;
+      margin-top: 32px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent-light));
+      box-shadow: 0 0 20px rgba(255, 105, 180, 0.25);
+      transition: width 1s linear;
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 28px;
+      }
+
+      .timer {
+        font-size: 4.3rem;
+      }
+
+      .mode-selector {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="card">
+
+      <div class="top-bar">
+        <div class="language-switch">
+          <button class="lang-btn active" data-lang="es">ES</button>
+          <button class="lang-btn" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="ca">CA</button>
+        </div>
+      </div>
+
+      <h1>Luma Tempo</h1>
+
+      <p class="subtitle" id="subtitle"></p>
+
+      <div class="mode-selector">
+        <button class="mode-btn active" id="workModeBtn"></button>
+        <button class="mode-btn" id="shortModeBtn"></button>
+        <button class="mode-btn" id="longModeBtn"></button>
+      </div>
+
+      <div class="mode" id="mode"></div>
+
+      <div class="timer" id="timer">20:00</div>
+
+      <div class="sessions">
+        <span id="sessionsLabel"></span>
+        <strong id="sessions">0</strong>
+      </div>
+
+      <div class="quote" id="quote"></div>
+
+      <div class="buttons">
+        <button class="start" id="startBtn"></button>
+        <button class="pause" id="pauseBtn"></button>
+        <button class="reset" id="resetBtn"></button>
+      </div>
+
+      <div class="progress">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const APP_NAME = "Luma Tempo";
+
+    const WORK_TIME = 20 * 60;
+    const SHORT_BREAK = 5 * 60;
+    const LONG_BREAK = 15 * 60;
+
+    let currentLanguage = "es";
+    let timer = WORK_TIME;
+    let totalTime = WORK_TIME;
+    let interval = null;
+    let completedSessions = 0;
+    let currentMode = "work";
+
+    const translations = {
+      es: {
+        subtitle: "Encuentra tu ritmo. Concéntrate y descansa a tiempo",
+        work: "Enfoque",
+        shortBreak: "Descanso corto",
+        longBreak: "Descanso largo",
+        mode: "Modo",
+        sessions: "Turnos completados",
+        start: "Iniciar",
+        pause: "Pausar",
+        reset: "Reiniciar",
+        notificationWork: "¡Hora de volver a concentrarte!",
+        notificationBreak: "¡Es momento de descansar!",
+
+        workQuote: "Cuidar de tus objetivos también es una forma de cuidarte.",
+
+        shortQuotes: [
+          "Descansar no interrumpe tu progreso; lo sostiene.",
+          "Escucha lo que necesitas en este momento y respóndete con amabilidad.",
+          "El cuidado empieza por reconocer tus propios límites.",
+          "Dedicarte unos minutos de atención es una práctica de respeto hacia ti."
+        ],
+
+        longQuotes: [
+          "El equilibrio entre hacer y descansar fortalece tu bienestar.",
+          "Cuidarte te permite cuidar mejor de aquello que valoras.",
+          "La constancia nace del compromiso contigo, no de la exigencia permanente.",
+          "Tu productividad es más sostenible cuando incluye el descanso."
+        ]
+      },
+
+      en: {
+        subtitle: "Find your rhythm. Stay focused and take breaks at the right time",
+        work: "Focus",
+        shortBreak: "Short break",
+        longBreak: "Long break",
+        mode: "Mode",
+        sessions: "Completed sessions",
+        start: "Start",
+        pause: "Pause",
+        reset: "Reset",
+        notificationWork: "Time to focus again!",
+        notificationBreak: "Time for a break!",
+
+        workQuote: "Caring for your goals is also a way of caring for yourself.",
+
+        shortQuotes: [
+          "Rest does not interrupt your progress; it supports it.",
+          "Listen to what you need right now and respond with kindness.",
+          "Care begins with recognising your own limits.",
+          "Taking a few moments for yourself is an act of self-respect."
+        ],
+
+        longQuotes: [
+          "Balancing effort and rest strengthens your well-being.",
+          "Caring for yourself helps you care for what matters most.",
+          "Consistency grows from commitment, not constant pressure.",
+          "Your productivity is more sustainable when it includes rest."
+        ]
+      },
+
+      ca: {
+        subtitle: "Troba el teu ritme. Mantingues la concentració i descansa a temps",
+        work: "Concentració",
+        shortBreak: "Descans curt",
+        longBreak: "Descans llarg",
+        mode: "Mode",
+        sessions: "Sessions completades",
+        start: "Iniciar",
+        pause: "Pausar",
+        reset: "Reiniciar",
+        notificationWork: "És hora de tornar a concentrar-te!",
+        notificationBreak: "És moment de descansar!",
+
+        workQuote: "Cuidar els teus objectius també és una manera de cuidar-te.",
+
+        shortQuotes: [
+          "Descansar no interromp el teu progrés; el sosté.",
+          "Escolta què necessites ara mateix i respon-te amb amabilitat.",
+          "La cura comença per reconèixer els teus propis límits.",
+          "Dedicar-te uns minuts és una pràctica de respecte cap a tu mateixa."
+        ],
+
+        longQuotes: [
+          "L'equilibri entre fer i descansar reforça el teu benestar.",
+          "Cuidar-te et permet cuidar millor allò que valores.",
+          "La constància neix del compromís amb tu mateixa, no de l'exigència constant.",
+          "La teva productivitat és més sostenible quan inclou el descans."
+        ]
+      }
+    };
+
+    const subtitleEl = document.getElementById("subtitle");
+    const modeEl = document.getElementById("mode");
+    const timerEl = document.getElementById("timer");
+    const sessionsLabel = document.getElementById("sessionsLabel");
+    const sessionsEl = document.getElementById("sessions");
+    const quoteEl = document.getElementById("quote");
+    const progressBar = document.getElementById("progressBar");
+
+    const startBtn = document.getElementById("startBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    const workModeBtn = document.getElementById("workModeBtn");
+    const shortModeBtn = document.getElementById("shortModeBtn");
+    const longModeBtn = document.getElementById("longModeBtn");
+
+    function t() {
+      return translations[currentLanguage];
+    }
+
+    function updateLanguage() {
+      subtitleEl.textContent = t().subtitle;
+
+      workModeBtn.textContent = t().work;
+      shortModeBtn.textContent = t().shortBreak;
+      longModeBtn.textContent = t().longBreak;
+
+      sessionsLabel.textContent = `${t().sessions}: `;
+      startBtn.textContent = t().start;
+      pauseBtn.textContent = t().pause;
+      resetBtn.textContent = t().reset;
+
+      document.documentElement.lang = currentLanguage;
+
+      document.querySelectorAll(".lang-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.lang === currentLanguage);
+      });
+
+      updateMode();
+      updateQuote();
+    }
+
+    function updateModeButtons() {
+      workModeBtn.classList.toggle("active", currentMode === "work");
+      shortModeBtn.classList.toggle("active", currentMode === "shortBreak");
+      longModeBtn.classList.toggle("active", currentMode === "longBreak");
+    }
+
+    function updateMode() {
+      const modeNames = {
+        work: t().work,
+        shortBreak: t().shortBreak,
+        longBreak: t().longBreak
+      };
+
+      modeEl.textContent = `${t().mode}: ${modeNames[currentMode]}`;
+      updateModeButtons();
+    }
+
+    function updateQuote() {
+      if (currentMode === "work") {
+        quoteEl.textContent = t().workQuote;
+        return;
+      }
+
+      const quotes = currentMode === "shortBreak"
+        ? t().shortQuotes
+        : t().longQuotes;
+
+      quoteEl.textContent = quotes[Math.floor(Math.random() * quotes.length)];
+    }
+
+    function updateDisplay() {
+      const minutes = String(Math.floor(timer / 60)).padStart(2, "0");
+      const seconds = String(timer % 60).padStart(2, "0");
+
+      timerEl.textContent = `${minutes}:${seconds}`;
+      sessionsEl.textContent = completedSessions;
+      progressBar.style.width = `${(timer / totalTime) * 100}%`;
+    }
+
+    function switchMode() {
+      if (currentMode === "work") {
+        completedSessions++;
+
+        if (completedSessions % 3 === 0) {
+          currentMode = "longBreak";
+          timer = LONG_BREAK;
+          totalTime = LONG_BREAK;
+        } else {
+          currentMode = "shortBreak";
+          timer = SHORT_BREAK;
+          totalTime = SHORT_BREAK;
+        }
+      } else {
+        currentMode = "work";
+        timer = WORK_TIME;
+        totalTime = WORK_TIME;
+      }
+
+      updateMode();
+      updateQuote();
+      updateDisplay();
+
+      const message = currentMode === "work"
+        ? t().notificationWork
+        : t().notificationBreak;
+
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification(`${APP_NAME} · ${message}`);
+      }
+    }
+
+    function startTimer() {
+      if (interval) return;
+
+      if ("Notification" in window && Notification.permission !== "granted") {
+        Notification.requestPermission();
+      }
+
+      interval = setInterval(() => {
+        if (timer > 0) {
+          timer--;
+          updateDisplay();
+        } else {
+          clearInterval(interval);
+          interval = null;
+          switchMode();
+          startTimer();
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      clearInterval(interval);
+      interval = null;
+    }
+
+    function resetTimer() {
+      pauseTimer();
+
+      currentMode = "work";
+      timer = WORK_TIME;
+      totalTime = WORK_TIME;
+      completedSessions = 0;
+
+      updateMode();
+      updateQuote();
+      updateDisplay();
+    }
+
+    function setMode(mode) {
+      pauseTimer();
+
+      currentMode = mode;
+
+      if (mode === "work") {
+        timer = WORK_TIME;
+        totalTime = WORK_TIME;
+      } else if (mode === "shortBreak") {
+        timer = SHORT_BREAK;
+        totalTime = SHORT_BREAK;
+      } else {
+        timer = LONG_BREAK;
+        totalTime = LONG_BREAK;
+      }
+
+      updateMode();
+      updateQuote();
+      updateDisplay();
+    }
+
+    startBtn.addEventListener("click", startTimer);
+    pauseBtn.addEventListener("click", pauseTimer);
+    resetBtn.addEventListener("click", resetTimer);
+
+    workModeBtn.addEventListener("click", () => setMode("work"));
+    shortModeBtn.addEventListener("click", () => setMode("shortBreak"));
+    longModeBtn.addEventListener("click", () => setMode("longBreak"));
+
+    document.querySelectorAll(".lang-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        currentLanguage = btn.dataset.lang;
+        updateLanguage();
+      });
+    });
+
+    updateLanguage();
+    updateDisplay();
+  </script>
+
+</body>
