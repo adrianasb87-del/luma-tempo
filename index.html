@@ -42,11 +42,11 @@
       color: var(--text);
       position: relative;
 
-      background:
-        radial-gradient(circle at 15% 20%, rgba(95, 111, 255, 0.32) 0%, transparent 30%),
-        radial-gradient(circle at 85% 15%, rgba(255, 105, 180, 0.22) 0%, transparent 28%),
-        radial-gradient(circle at 80% 85%, rgba(122, 167, 255, 0.20) 0%, transparent 35%),
-        linear-gradient(160deg, #1a2344 0%, #1e2750 45%, #18213f 100%);
+  background:
+    radial-gradient(circle at 20% 15%, rgba(95,111,255,0.35), transparent 35%),
+    radial-gradient(circle at 80% 10%, rgba(255,105,180,0.25), transparent 40%),
+    radial-gradient(circle at 50% 90%, rgba(120,200,255,0.25), transparent 45%),
+    linear-gradient(160deg, #1f2a52 0%, #24335f 50%, #1c2748 100%);
     }
 
     body::before,
@@ -82,16 +82,19 @@
       z-index: 1;
     }
 
-    .card {
-      background: var(--card);
-      backdrop-filter: blur(30px) saturate(180%);
-      -webkit-backdrop-filter: blur(30px) saturate(180%);
-      border: 1px solid var(--border);
-      border-radius: 32px;
-      padding: 38px;
-      text-align: center;
-      box-shadow: var(--shadow);
-    }
+.card {
+  background: rgba(255,255,255,0.14);
+  backdrop-filter: blur(35px) saturate(180%);
+  -webkit-backdrop-filter: blur(35px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 32px;
+  padding: 38px;
+  text-align: center;
+  box-shadow:
+    0 25px 70px rgba(0,0,0,0.15),
+    0 0 90px rgba(95,111,255,0.15),
+    0 0 60px rgba(255,105,180,0.10);
+}
 
     .top-bar {
       display: flex;
@@ -550,7 +553,11 @@
       const message = currentMode === "work"
         ? t().notificationWork
         : t().notificationBreak;
-
+const bell = document.getElementById("bellSound");
+if (bell) {
+  bell.currentTime = 0;
+  bell.play();
+}
       if ("Notification" in window && Notification.permission === "granted") {
         new Notification(`${APP_NAME} · ${message}`);
       }
@@ -633,5 +640,7 @@
     updateLanguage();
     updateDisplay();
   </script>
-
+<audio id="bellSound" preload="auto">
+  <source src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" type="audio/ogg">
+</audio>
 </body>
